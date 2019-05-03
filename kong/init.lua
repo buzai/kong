@@ -198,7 +198,7 @@ end
 local function update_plugins(version)
   local err
   if not version then
-    version, err = kong.cache:get("plugins_map:version", { ttl = 0 }, utils.uuid)
+    version, err = kong.cache:get("plugins:version", { ttl = 0 }, utils.uuid)
     if err then
       return nil, "failed to retrieve plugins map version: " .. err
     end
@@ -208,7 +208,7 @@ local function update_plugins(version)
     local ok, err = concurrency.with_coroutine_mutex(PLUGINS_MUTEX_OPTS, function()
       -- we have the lock but we might not have needed it. check the
       -- version again and rebuild if necessary
-      version, err = kong.cache:get("plugins_map:version", { ttl = 0 }, utils.uuid)
+      version, err = kong.cache:get("plugins:version", { ttl = 0 }, utils.uuid)
       if err then
         return nil, "failed to re-retrieve version: " .. err
       end
@@ -583,7 +583,7 @@ function Kong.init_worker()
     return
   end
 
-  local ok, err = cache:get("plugins_map:version", { ttl = 0 }, function()
+  local ok, err = cache:get("plugins:version", { ttl = 0 }, function()
     return "init"
   end)
   if not ok then
